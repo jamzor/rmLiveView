@@ -1,0 +1,149 @@
+{% extends "mappanel.html" %}
+
+{% block side_init %}
+  <div id="page">
+    <div id="sidepanel"><meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <head><h1>Router Map</h1></head>
+    <body>
+      <center>
+        <p>
+          <div id="rLabel"></div>
+          <div id="name"><label><b>Name</b></label><br><br><div id="nameField"></div></div>
+          <br>
+          <div id="lat"><label><b>Latitude</b></label><br><br><div id="latField"></div></div>
+          <br>
+          <div id="lng"><label><b>Longitude</b></label><br><br><div id="lngField"></div></div>
+        </p>
+        <button id="mButton" class="button" style="vertical-align:middle">Manage</button>
+      </center>
+    </body>
+  </div>
+
+  <script> // this is the script for the sidepanel
+    function displayMarker() {
+
+    }
+  </script>
+{% endblock %}
+
+{% block map_init %}
+  <script name="map_init"> // this is the script for the map
+    var map;
+    var routerImage;
+
+    var names = ["Calgary","Red Deer","Edmonton","Fort McMurray"];
+    var positions = [{lat: 51.0486,lng: -114.0708},{lat: 52.2681,lng: -113.8111},{lat: 53.6316,lng: -113.3239},{lat: 56.7264,lng: -111.3803}];
+    var links = ["http://www.calgary.ca", "http://www.reddeer.ca", "http://www.edmonton.ca", "http://www.fortmcmurraytoday.com/"];
+    var markers = [];
+
+    function initMap() {
+        var mapDiv = document.getElementById('map'); <!-- reference the div that the map will be loaded into>
+
+        map = new google.maps.Map(mapDiv, {
+            center: positions[0], // location to center the map
+            zoom: 5, // default zoom level of the map
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: google.maps.ControlPosition.RIGHT_TOP
+            },
+            scaleControl: false
+        }); // create a google maps object
+        initMarkers();
+    }
+
+    function initMarkers() {
+      routerImage = { // router icon marker template
+          url: 'routerIcon.png', // image location in project
+          scaledSize: new google.maps.Size(30,30), // scales the image to a size that works
+          origin: new google.maps.Point(0,0),
+          anchor: new google.maps.Point(15,15) // where the image is anchored
+      };
+      for(var i=0;i<positions.length;i++){
+          addMarkerWithTimeout(i);
+          markers[i].index = i;
+          google.maps.event.addListener(markers[i],'click', function() {
+            // function to display this marker's relevant info
+          displayInfo(this.index);
+              });
+          }
+      }
+
+      function addMarkerWithTimeout(i) {
+          markers[i] = new google.maps.Marker({
+              position: positions[i],
+              title: names[i],
+              map: map,
+              icon: routerImage,
+              animation: google.maps.Animation.DROP
+          });
+      }
+
+      function displayInfo(i) {
+          document.getElementById("nameField").innerHTML = names[i]; // assign name value
+          document.getElementById("latField").innerHTML = positions[i].lat; // lat
+          document.getElementById("lngField").innerHTML = positions[i].lng; // lng
+          document.getElementById("mButton").addEventListener('click', function() {
+              window.open(links[i]);
+              this.removeEventListener('click', arguments.callee); // this lets us keep the function anonymous
+          });
+      }
+
+      var styles = [
+              {
+                  featureType: 'poi.school', // this block colors schools on the map to yellow
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#fff700' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }, {
+                  featureType: 'poi.medical', // this block colors hospitals on the map to red
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#ff0000' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }, {
+                  featureType: 'poi.park', // this block colors parks on the map to green
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#336600' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }, {
+                  featureType: 'poi.business', // this block colors businesses on the map to blue
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#00e5ff' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }, {
+                  featureType: 'poi.sports_complex', // this block colors sports complexes on the map to orange
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#ff7700' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }, {
+                  featureType: 'transit', // this block colors transit lines on the map to navy
+                  elementType: 'geometry.fill',
+                  stylers: [
+                      { hue: '#000099' },
+                      { lightness: -15 },
+                      { saturation: 55 }
+                  ]
+              }
+          ];
+
+  </script>
+{% endblock %}
+
+{% block async_init %}
+  <script name="async_init" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap" async defer></script>
+{% endblock %}

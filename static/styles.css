@@ -1,3 +1,18 @@
 html {
   height: 100%;
+  width: 100%;
+}
+
+.sidepanel {
+  resize: none;
+  float: left;
+}
+
+.mappanel {
+  width: 85%;
+  float: left;
+}
+
+.sidepanel + .mappanel {
+  margin-right: 6px;
 }

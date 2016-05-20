@@ -39,11 +39,13 @@ if DEBUG:
     logging.getLogger().setLevel(logging.DEBUG)
 
 #****************************************************************************
-#   REGEXES
+#   GLOBALS AND REGEXES
 #   @author:    james macisaac
 #   @desc:      a handy location to group all necessary regular expressions so
 #               that they can be easily altered
 #****************************************************************************
+
+GOOGLE_MAPS_API_KEY = 'AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ'
 
 USER_REGEX = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")# letters, numbers, _ , - , size 3 < x < 20
 PASS_RE = re.compile(r"^.{3,20}$")
