@@ -3,16 +3,28 @@ html {
   width: 100%;
 }
 
-.sidepanel {
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#sidepanel {
+  height: 100%;
+  width: 15%;
   resize: none;
   float: left;
+  margin-right: -15%;
+  color: blue;
 }
 
-.mappanel {
-  width: 85%;
-  float: left;
+#map {
+  height: 100%;
+  width: 100%;
+  float: right;
 }
 
-.sidepanel + .mappanel {
-  margin-right: 6px;
+#sidepanel + #map {
+  margin-right: 0px;
 }

@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
 <html>
 <head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
   <link type="text/css" rel="stylesheet" href="../static/styles.css"/>
   <title>Live View</title>
 </head>
 
 <body>
-  <div id="content">
-    {% block content %}
+  {% block sidecontent %}
+    <!--Inherited html goes here-->
+  {% endblock %}
+  <div id="map"></div>
+    {% block mapcontent %}
       <!--Inherited html goes here-->
     {% endblock %}
-  </div>
 </body>
 
 </html>
