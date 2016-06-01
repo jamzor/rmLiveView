@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-  <link type="text/css" rel="stylesheet" href="../static/styles.css"/>
+  <meta charset="UTF-8">
   <title>Live View</title>
+  <link href='https://fonts.googleapis.com/css?family=Cuprum' rel='stylesheet' type='text/css'>
+  <link type="text/css" rel="stylesheet" href="../static/styles.css"/>
 </head>
 
 <body>
-  {% block sidecontent %}
-    <!--Inherited html goes here-->
-  {% endblock %}
-  <div id="map"></div>
-    {% block mapcontent %}
-      <!--Inherited html goes here-->
-    {% endblock %}
+  <div class="grid">
+    <div class="row">
+      <div class="col-2">
+        <p>
+        <div id="sidepanel">
+          <h1>Live View</h1>
+        </div>
+        <p>
+      </div>
+      <div class="col-10">
+        <div id="map"></div>
+        {% block mapscripts %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
