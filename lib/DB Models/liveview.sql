@@ -1,3 +1,16 @@
-CREATE DATABASE liveview{
+CREATE TABLE UserAcc(
+    id SERIAL UNIQUE,
+    username TEXT UNIQUE NOT NULL,
+    pw_hash TEXT NOT NULL,
+    recovery_pin_hash TEXT NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE,
+    last_login TIMESTAMP WITHOUT TIME ZONE);
 
-}
+CREATE TABLE Marker(
+    id SERIAL UNIQUE,
+    name TEXT UNIQUE NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    link TEXT NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE,
+    updated TIMESTAMP WITHOUT TIME ZONE);

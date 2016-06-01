@@ -24,6 +24,8 @@ import re
 import logging
 import json
 
+import psycopg2
+
 import webapp2
 import jinja2
 
@@ -45,11 +47,43 @@ if DEBUG:
 #               that they can be easily altered
 #****************************************************************************
 
+secret = '6$J%xa(cbu;K=9hK8y:2!6^ashalsi753&$h%&$'
+
 GOOGLE_MAPS_API_KEY = 'AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ'
 
 USER_REGEX = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")# letters, numbers, _ , - , size 3 < x < 20
 PASS_RE = re.compile(r"^.{3,20}$")
 PAGE_RE = re.compile(r"^(/(?:[a-zA-Z0-9_-]+/?)*)$") # letters, numbers, _ , -
+
+#****************************************************************************
+#   USER STUFF
+#   @author:    james macisaac
+#   @desc:      This is the area for the user account related stuff
+#****************************************************************************
+
+def make_secure_val(val):
+    return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
+
+def check_secure_val(secure_val):
+    val = secure_val.split('|')[0]
+    if secure_val == make_secure_val(val):
+        return val
+
+def make_salt(length = 5):
+    return ''.join(random.choice(letters) for x in xrange(length))
+
+def make_pw_hash(name, pw, salt = None):
+    if not salt:
+        salt = make_salt()
+    h = hashlib.sha256(name + pw + salt).hexdigest()
+    return '%s, %s' % (salt, h)
+
+def valid_pw(name, password, h):
+    salt = h.split(',')[0]
+    return h == make_pw_hash(name, password, salt)
+
+def users_key(group = 'default'):
+    return
 
 #****************************************************************************
 #   UTILITIES
@@ -58,6 +92,10 @@ PAGE_RE = re.compile(r"^(/(?:[a-zA-Z0-9_-]+/?)*)$") # letters, numbers, _ , -
 #               it supports. Some managed by the Handler class, others are
 #               floating.
 #****************************************************************************
+
+def connect():
+    """Connect to the PostgreSQL database.  Returns a database connection."""
+    return psycopg2.connect("dbname=tournament")
 
 def render_str(template, **params):
     t = jinja_env.get_template(template)
@@ -68,6 +106,7 @@ class Handler(webapp2.RequestHandler):
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
+        params['user'] = self.user
         return render_str(template, **params)
 
     def render(self, template, **kw):
@@ -90,6 +129,22 @@ class Handler(webapp2.RequestHandler):
     def read_secure_cookie(self, name):
         cookie_val = self.request.cookies.get(name)
         return cookie_val
+    
+    def login(self, user):
+        self.set_secure_cookie('user_id', str(user.key().id()))
+    
+    def logout(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+    
+    def initialize(self, *a, **kw):
+        webapp2.RequestHandler.initialize(self, *a, **kw)
+        uid = self.read_secure_cookie('user_id')
+        self.user = uid and User.by_id(int(uid))
+        
+        if self.request.url.endswith('.json'):
+            self.format = 'json'
+        else:
+            self.format = 'html'
 
     def notfound(self):
         self.error(404)

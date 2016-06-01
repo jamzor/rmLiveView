@@ -1,3 +1,4 @@
+
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #   ~ LIVEVIEW.PY ~
 #   @author:    james macisaac
@@ -22,6 +23,8 @@ import os
 import webapp2
 import jinja2
 
+
+
 from lib.utils import GOOGLE_MAPS_API_KEY
 
 from lib.utils import Handler
@@ -39,6 +42,22 @@ class DefaultPage(Handler):
     def get(self):
         self.render('mapscripts.html', api_key = GOOGLE_MAPS_API_KEY)
 
+class LoginHandler(Handler):
+    def get(self):
+        self.render('login-form.html', next_url = next_url)
+    
+    def post(self):
+        username = self.request.get('username')
+        password = self.request.get('password')
+        
+        u = User.login(username, password)
+        if u:
+            self.login(u)
+            self.redirect('/')
+        else:
+            msg = 'Invalid Login'
+            self.render('login-form.html', error = msg)
+
 class RedirHandler(Handler):
     def get(self):
         self.redirect('/')
@@ -52,5 +71,6 @@ class RedirHandler(Handler):
 
 app = webapp2.WSGIApplication([
                                ('/', DefaultPage),
+                               ('/login', Login),
                                (r'/*', RedirHandler)
                               ], debug = DEBUG)
