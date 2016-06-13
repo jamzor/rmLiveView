@@ -30,6 +30,7 @@ def liveview():
 def catch_all(path):
     return redirect('http://localhost:8095/liveview')
 
+#DB methods
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=LiveView")
@@ -44,5 +45,15 @@ def getMarkers():
     DB.close()
     return rows
 
-app = flask_app.wsgi_app
+def updateMarkerCoords(id, lat, lng):
+    DB = connect()
+    c = DB.cursor(cursor_factory=RealDictCursor)
+    query = "UPDATE Marker SET latitude = %s, longitude = %s WHERE id = %s" % (lat,lng,id)
+    c.execute(query)
+    DB.commit()
+    DB.close()
 
+#Remote data fetching methods
+
+
+app = flask_app.wsgi_app
