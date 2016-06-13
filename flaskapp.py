@@ -19,7 +19,7 @@ def liveview():
 
 @flask_app.route('/<path:path>')
 def catch_all(path):
-    return redirect('liveview')
+    return redirect('http://localhost:8095/liveview')
 
 app = flask_app.wsgi_app
 
