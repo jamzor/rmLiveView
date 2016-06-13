@@ -153,10 +153,10 @@ class WSGIServer(object):
             for data in result:
                 response += data
             # Print formatted response data a la 'curl -v'
-            print(''.join(
-                          '> {line}\n'.format(line=line)
-                          for line in response.splitlines()
-            ))
+            #print(''.join(
+            #              '> {line}\n'.format(line=line)
+            #              for line in response.splitlines()
+            #))
             self.client_connection.sendall(response)
         finally:
             self.client_connection.close()

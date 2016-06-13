@@ -2,10 +2,11 @@
 
 {% block mapscripts %}
   <script name="map_init"> // this is the script for the map
+    var map;
+    var gmarkers;
     function initMap() {
-        var map;
         map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -34.397, lng: 150.644},
+            center: {lat: 51.0486, lng: -114.0708},
             zoom: 5, // default zoom level of the map
             mapTypeControl: true,
             mapTypeControlOptions: {
@@ -14,6 +15,30 @@
             },
             scaleControl: false
         }); // create a google maps object
+
+        gmarkers = {{markers|safe}};
+        initMarkers();
+    }
+    function initMarkers() {
+        routerImage = { // router icon marker template
+            url: '../static/routerIcon.png', // image location in project
+            scaledSize: new google.maps.Size(30,30), // scales the image to a size that works
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(15,15) // where the image is anchored
+        };
+        for(var i=0;i<gmarkers.length;i++){
+            console.log(gmarkers[i].latitude);
+            console.log(gmarkers[i].longitude);
+            var latlng = {lat: parseFloat(gmarkers[i].latitude),lng: parseFloat(gmarkers[i].longitude)};
+            console.log(latlng);
+            new google.maps.Marker({
+                position: latlng,
+                title: gmarkers[i].name,
+                map: map,
+                icon: routerImage,
+                animation: google.maps.Animation.DROP
+            });
+        }
     }
   </script>
   <script name="async_init" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap" async defer>

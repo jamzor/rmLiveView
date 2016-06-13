@@ -4,6 +4,10 @@ from flask import request
 from flask import render_template
 from flask import redirect, url_for
 
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import json
+
 flask_app = Flask('flaskapp')
 
 @flask_app.route('/')
@@ -13,6 +17,10 @@ def index():
 @flask_app.route('/liveview', methods=['GET', 'POST'])
 def liveview():
     if request.method == 'GET':
+        markers = json.dumps(getMarkers(), indent=2)
+        if markers:
+            print markers
+            return render_template('mapscripts.html', markers=markers), 200
         return render_template('mapscripts.html'), 200
     else:
         # POST METHOD
@@ -29,8 +37,8 @@ def connect():
 def getMarkers():
     """Get the list of markers from the database"""
     DB = connect()
-    c = DB.cursor()
-    query = "SELECT * FROM Markers ORDER BY created"
+    c = DB.cursor(cursor_factory=RealDictCursor)
+    query = "SELECT id,name,latitude,longitude,link FROM Marker ORDER BY created DESC"
     c.execute(query)
     rows = c.fetchall()
     DB.close()
