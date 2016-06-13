@@ -15,11 +15,26 @@ def liveview():
     if request.method == 'GET':
         return render_template('mapscripts.html'), 200
     else:
+        # POST METHOD
         return render_template('mapscripts.html'), 200
 
 @flask_app.route('/<path:path>')
 def catch_all(path):
     return redirect('http://localhost:8095/liveview')
+
+def connect():
+    """Connect to the PostgreSQL database.  Returns a database connection."""
+    return psycopg2.connect("dbname=LiveView")
+
+def getMarkers():
+    """Get the list of markers from the database"""
+    DB = connect()
+    c = DB.cursor()
+    query = "SELECT * FROM Markers ORDER BY created"
+    c.execute(query)
+    rows = c.fetchall()
+    DB.close()
+    return rows
 
 app = flask_app.wsgi_app
 
