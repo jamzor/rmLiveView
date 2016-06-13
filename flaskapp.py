@@ -8,7 +8,7 @@ flask_app = Flask('flaskapp')
 
 @flask_app.route('/')
 def index():
-    return redirect(url_for('liveview'))
+    return redirect('http://localhost:8095/liveview')
 
 @flask_app.route('/liveview', methods=['GET', 'POST'])
 def liveview():
