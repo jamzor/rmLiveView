@@ -27,18 +27,28 @@
             anchor: new google.maps.Point(15,15) // where the image is anchored
         };
         for(var i=0;i<gmarkers.length;i++){
-            console.log(gmarkers[i].latitude);
-            console.log(gmarkers[i].longitude);
             var latlng = {lat: parseFloat(gmarkers[i].latitude),lng: parseFloat(gmarkers[i].longitude)};
-            console.log(latlng);
-            new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 position: latlng,
                 title: gmarkers[i].name,
                 map: map,
                 icon: routerImage,
                 animation: google.maps.Animation.DROP
             });
+            var index = i; // ****may need to see if there are issues when we have many DB entries
+            marker.addListener('click', function() {
+  							// function to display this marker's relevant info
+                // is ran later, so must pass the value of the index beforehand
+  							displayInfo(index);
+						});
         }
+    }
+    function displayInfo(i) {
+      document.getElementById("nameField").innerHTML = gmarkers[i].name; // name
+      document.getElementById("latField").innerHTML = "Lat: " + gmarkers[i].latitude.toString(); // lat
+      document.getElementById("lngField").innerHTML = "Long: " + gmarkers[i].longitude.toString(); // lng
+      document.getElementById("linkText").innerHTML = "Management Link"
+      document.getElementById("linkField").href = gmarkers[i].link; // link
     }
   </script>
   <script name="async_init" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap" async defer>
