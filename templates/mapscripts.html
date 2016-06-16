@@ -4,6 +4,7 @@
   <script name="map_init"> // this is the script for the map
     var map;
     var gmarkers;
+    var mapmarkers;
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 51.0486, lng: -114.0708},
@@ -26,29 +27,45 @@
             origin: new google.maps.Point(0,0),
             anchor: new google.maps.Point(15,15) // where the image is anchored
         };
+        mapmarkers = [];
         for(var i=0;i<gmarkers.length;i++){
-            var latlng = {lat: parseFloat(gmarkers[i].latitude),lng: parseFloat(gmarkers[i].longitude)};
-            var marker = new google.maps.Marker({
-                position: latlng,
-                title: gmarkers[i].name,
-                map: map,
-                icon: routerImage,
-                animation: google.maps.Animation.DROP
-            });
-            var index = i; // ****may need to see if there are issues when we have many DB entries
-            marker.addListener('click', function() {
-  							// function to display this marker's relevant info
-                // is ran later, so must pass the value of the index beforehand
-  							displayInfo(index);
-						});
+          var latlng = {lat: parseFloat(gmarkers[i].latitude),lng: parseFloat(gmarkers[i].longitude)};
+          var marker = new google.maps.Marker({
+              position: latlng,
+              title: gmarkers[i].name,
+              map: map,
+              icon: routerImage,
+              animation: google.maps.Animation.DROP,
+              index: i
+          });
+          mapmarkers.push(marker);
+        }
+        console.log();
+        for(var i=0;i<mapmarkers.length;i++){
+            (function (i) { // anonymous function
+                var marker = mapmarkers[i];
+                marker.addListener('click', function() {
+      							// function to display this marker's relevant info
+                    //clearInfo();
+      							displayInfo(marker);
+    						});
+            })(i);
         }
     }
-    function displayInfo(i) {
-      document.getElementById("nameField").innerHTML = gmarkers[i].name; // name
-      document.getElementById("latField").innerHTML = "Lat: " + gmarkers[i].latitude.toString(); // lat
-      document.getElementById("lngField").innerHTML = "Long: " + gmarkers[i].longitude.toString(); // lng
+    function clearInfo() {
+      document.getElementById("nameField").innerHTML = "";
+      document.getElementById("latField").innerHTML = "";
+      document.getElementById("lngField").innerHTML = "";
+      document.getElementById("linkText").innerHTML = "";
+      document.getElementById("linkField").href = "";
+    }
+    function displayInfo(marker) {
+      console.log(marker.index);
+      document.getElementById("nameField").innerHTML = gmarkers[marker.index].name; // name
+      document.getElementById("latField").innerHTML = "Lat: " + gmarkers[marker.index].latitude.toString(); // lat
+      document.getElementById("lngField").innerHTML = "Long: " + gmarkers[marker.index].longitude.toString(); // lng
       document.getElementById("linkText").innerHTML = "Management Link"
-      document.getElementById("linkField").href = gmarkers[i].link; // link
+      document.getElementById("linkField").href = gmarkers[marker.index].link; // link
     }
   </script>
   <script name="async_init" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap" async defer>
