@@ -19,6 +19,7 @@
 
         gmarkers = {{markers|safe}};
         initMarkers();
+        setInterval(function(){updateMarkers()}, 10000)
     }
     function initMarkers() {
         routerImage = { // router icon marker template
@@ -27,7 +28,7 @@
             origin: new google.maps.Point(0,0),
             anchor: new google.maps.Point(15,15) // where the image is anchored
         };
-        mapmarkers = [];
+        mapmarkers = []; // this will help to reload markers
         for(var i=0;i<gmarkers.length;i++){
           var latlng = {lat: parseFloat(gmarkers[i].latitude),lng: parseFloat(gmarkers[i].longitude)};
           var marker = new google.maps.Marker({
@@ -40,7 +41,6 @@
           });
           mapmarkers.push(marker);
         }
-        console.log();
         for(var i=0;i<mapmarkers.length;i++){
             (function (i) { // anonymous function
                 var marker = mapmarkers[i];
@@ -66,6 +66,20 @@
       document.getElementById("lngField").innerHTML = "Long: " + gmarkers[marker.index].longitude.toString(); // lng
       document.getElementById("linkText").innerHTML = "Management Link"
       document.getElementById("linkField").href = gmarkers[marker.index].link; // link
+    }
+    function removeMarkers() {
+        setMapOnAll(null);
+        mapmarkers = [];
+    }
+
+    function updateMarkers() {
+      console.log("updating...");
+      $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
+        $.getJSON($SCRIPT_ROOT+"/_query_db",gmarkers,
+          function(data) {
+            removeMarkers();
+            initMarkers();
+          });
     }
   </script>
   <script name="async_init" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap" async defer>
