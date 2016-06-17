@@ -72,12 +72,19 @@
         mapmarkers = [];
     }
 
+    function setMapOnAll(map) {
+      for (var i = 0; i < mapmarkers.length; i++) {
+        mapmarkers[i].setMap(map);
+      }
+    }
+
     function updateMarkers() {
       console.log("updating...");
       $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
-        $.getJSON($SCRIPT_ROOT+"/_query_db",gmarkers,
+        $.getJSON($SCRIPT_ROOT+"/_query_db",
           function(data) {
             removeMarkers();
+            gmarkers = data;
             initMarkers();
           });
     }
