@@ -8,22 +8,20 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
 
+GMAPS_API_KEY = "AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ"
+
 flask_app = Flask('flaskapp')
 
 @flask_app.route('/')
 def index():
     return redirect('http://localhost:8095/liveview')
 
-@flask_app.route('/liveview', methods=['GET', 'POST'])
+@flask_app.route('/liveview', methods=['GET'])
 def liveview():
-    if request.method == 'GET':
-        markers = json.dumps(getMarkers(), indent=2)
-        if markers:
-            return render_template('mapscripts.html', markers=markers), 200
-        return render_template('mapscripts.html'), 200
-    else:
-        # POST METHOD
-        return render_template('mapscripts.html'), 200
+    markers = json.dumps(getMarkers(), indent=2)
+    if markers:
+        return render_template('mapscripts.html', markers=markers, api_key=GMAPS_API_KEY), 200
+    return render_template('mapscripts.html', api_key=GMAPS_API_KEY), 200
 
 @flask_app.route('/_query_db')
 def query_db():

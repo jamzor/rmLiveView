@@ -36,7 +36,6 @@
               title: gmarkers[i].name,
               map: map,
               icon: routerImage,
-              animation: google.maps.Animation.DROP,
               index: i
           });
           mapmarkers.push(marker);
@@ -84,7 +83,7 @@
         $.getJSON($SCRIPT_ROOT+"/_query_db",
           function(data) {
             removeMarkers();
-            gmarkers = data;
+            gmarkers = data; // this sets the variable to the python array value
             initMarkers();
           });
     }
