@@ -1,4 +1,4 @@
-/*INSERT INTO Marker (name,latitude,longitude,link) VALUES ('Calgary', 51.0486, -114.0708, 'http://www.calgary.ca')*/
+INSERT INTO Marker (name,latitude,longitude,link) VALUES ('Calgary', 51.0486, -114.0708, 'http://www.calgary.ca')
 INSERT INTO Marker (name,latitude,longitude,link) VALUES ('Edmonton', 53.5557952, -113.6343729, 'http://www.edmonton.ca');
 INSERT INTO Marker (name,latitude,longitude,link) VALUES ('Grande Prairie', 55.1597369, -118.8906059, 'http://www.cityofgp.ca');
 INSERT INTO Marker (name,latitude,longitude,link) VALUES ('Fort McMurray', 56.704919, -111.3705794, 'http://www.fortmcmurraytourism.com');

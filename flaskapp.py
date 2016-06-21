@@ -37,7 +37,7 @@ def catch_all(path):
 #DB methods
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=LiveView")
+    return psycopg2.connect("dbname=liveview")
 
 def getMarkers():
     """Get the list of markers from the database"""
