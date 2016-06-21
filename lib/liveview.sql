@@ -1,8 +1,8 @@
-CREATE TABLE UserAcc(
+CREATE TABLE UserAgent(
     id SERIAL UNIQUE,
     username TEXT UNIQUE NOT NULL,
-    pw_hash TEXT NOT NULL,
-    recovery_pin_hash TEXT NOT NULL,
+    password TEXT NOT NULL,
+	device TEXT NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now()::TIMESTAMP,
     last_login TIMESTAMP WITHOUT TIME ZONE DEFAULT now()::TIMESTAMP);
 
