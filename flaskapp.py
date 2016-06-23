@@ -185,7 +185,7 @@ def parseGPSString(output):
 	
 	#convert to doubles
 	lat = convertLat(lat_dms)
-	lng = convertLat(lng_dms)
+	lng = convertLng(lng_dms)
 	
 	if not lat and lng:
 		return None
@@ -205,11 +205,19 @@ def convertLat(lat):
 	#degrees
 	lat_str = lat_s[1:-1]
 	lat_nums = [lat_str[0], lat_str[2], lat_str[4]]
+	#print 'Nums:'
+	#print lat_nums
 	secs = float(lat_nums[2]) / 3600
-	mins = int(lat_nums[1]) / 60
-	degs = int(lat_nums[0])
+	#print secs
+	mins = float(lat_nums[1]) / 60
+	#print mins
+	degs = float(lat_nums[0])
+	#print degs
 	lat_val = degs + mins + secs
-	
+	#print lat_val
+	lat_val = float(format(lat_val, '.8f'))
+	#print 'rounded:'
+	#print lat_val
 	if bearing_val is 1:
 		return lat_val * -1
 	return lat_val
@@ -228,11 +236,19 @@ def convertLng(lng):
 	#degrees
 	lng_str = lng_s[1:-1]
 	lng_nums = [lng_str[0], lng_str[2], lng_str[4]]
+	#print 'Nums:'
+	#print lng_nums
 	secs = float(lng_nums[2]) / 3600
+	#print secs
 	mins = float(lng_nums[1]) / 60
+	#print mins
 	degs = float(lng_nums[0])
+	#print degs
 	lng_val = degs + mins + secs
-	
+	#print lng_val
+	lng_val = float(format(lng_val, '.8f'))
+	#print 'rounded:'
+	#print lng_val
 	if bearing_val is 1:
 		return lng_val * -1
 	return lng_val
