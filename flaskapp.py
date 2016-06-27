@@ -55,7 +55,7 @@ flask_app = Flask('flaskapp')
 
 @flask_app.route('/')
 def index():
-    return redirect('http://localhost:8095/liveview')
+    return redirect('http://192.168.99.183:8095/liveview')
 
 @flask_app.route('/liveview', methods=['GET'])
 def liveview():
@@ -75,7 +75,7 @@ def query_db():
 
 @flask_app.route('/<path:path>')
 def catch_all(path):
-    return redirect('http://localhost:8095/liveview')
+    return redirect('http://192.168.99.183:8095/liveview')
 
 #****************************************************************************
 #   DB METHODS
