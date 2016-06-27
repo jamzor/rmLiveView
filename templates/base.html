@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live View</title>
+  <link href='https://fonts.googleapis.com/css?family=Cuprum' rel='stylesheet' type='text/css'>
+  <link type="text/css" rel="stylesheet" href="../static/css/styles.css"/> <!-- custom styles -->
+  <link type="image/ico" rel="icon" href="../static/favicon.ico"/>
+  <script type=text/javascript src="../static/jquery-3.0.0.min.js"></script>
+</head>
+
+<body>
+  <div class="grid">
+    <div class="row">
+      <div class="col-2">
+          <div class="sidepanel">
+            <h1>Live View</h1>
+            <br>
+            <ul class="list" style="list-style-type:none;">
+              <li style="align:center;"><div style="font-size: 18px" id="nameField"></div></li>
+			  <br>
+              <li><div id="latField"></div></li>
+              <li><div id="lngField"></div></li>
+              <br>
+              <li><a target="_blank" id="linkField"><div id="linkText"></div></a></li>
+            </ul>
+          </div>
+          <div class="rect1">
+            <div class="rect2">
+              <div class="rect3">
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="col-10">
+        <div id="map"></div>
+        {% block mapscripts %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
