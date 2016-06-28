@@ -45,12 +45,25 @@
                 var marker = mapmarkers[i];
                 marker.addListener('click', function() {
       							// function to display this marker's relevant info
-                    //clearInfo();
+								map.panTo(marker.position);
       							displayInfo(marker);
+								smoothZoom(map, 14, map.getZoom());
     						});
             })(i);
         }
     }
+	function smoothZoom (map, max, cnt) {
+		if (cnt >= max) {
+			return;
+		}
+		else {
+			z = google.maps.event.addListener(map, 'zoom_changed', function(event){
+				google.maps.event.removeListener(z);
+				smoothZoom(map, max, cnt + 1);
+			});
+			setTimeout(function(){map.setZoom(cnt)}, 80); // 80ms is what I found to work well on my system -- it might not work well on all systems
+		}
+	}  
     function clearInfo() {
       document.getElementById("nameField").innerHTML = "";
       document.getElementById("latField").innerHTML = "";

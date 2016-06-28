@@ -32,11 +32,17 @@ html, body {
 .col-9 {width: 75%;}
 .col-10 {width: 83.33%;}
 .col-11 {width: 91.66%;}
-.col-12 {width: 100%;}
+.col-12 {width: 100%; position: relative;}
 
 h1 {
   text-align: center;
   color: #232C33;
+}
+
+h2 {
+	text-align: left;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 
 .sidepanel {
@@ -107,4 +113,63 @@ h1 {
   left: 0;
   bottom: 0px;
   margin: auto;
+}
+
+.rect4 {
+  width: 75%;
+  height: 60%;
+  background: #17DA5B;
+  position: absolute;
+  left: 40px;
+  bottom: 0px;
+  margin: auto;
+}
+
+.rect5 {
+  width: 75%;
+  height: 60%;
+  background: #7E0F5A;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  margin: auto;
+}
+
+.rect6 {
+  width: 75%;
+  height: 60%;
+  background: #D96C06;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  margin: auto;
+}
+
+#invisrect {
+	height: 100%;
+	margin-left: 40px;
+	margin-right: 40px;
+	background-color: #ffffff;
+	position: relative;
+	z-index: 2;
+	border: 1px solid black;
+	opacity: 0.65;
+	filter: alpha(opacity=65); /* For IE8 and earlier */
+}
+
+#invisrectside {
+	height: 100%;
+	background-color: #ffffff;
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+	z-index: 2;
+	border: 1px solid black;
+	opacity: 0.65;
+	filter: alpha(opacity=65); /* For IE8 and earlier */
+}
+
+#loginpane {
+	margin: 20px;
+	height: 38%;
 }

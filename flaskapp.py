@@ -44,7 +44,7 @@ GMAPS_API_KEY = "AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ"
 LAT_REGEX = re.compile(r"^Latitude: ([a-zA-Z0-9. -])*\r$")
 LNG_REGEX = re.compile(r"^Longitude: ([a-zA-Z0-9. -])*\r$")
 
-flask_app = Flask('flaskapp')
+flask_app = Flask(__name__)
 
 #****************************************************************************
 #   ROUTES
@@ -55,7 +55,7 @@ flask_app = Flask('flaskapp')
 
 @flask_app.route('/')
 def index():
-    return redirect('http://192.168.99.183:8095/liveview')
+    return redirect('http://192.168.99.183:8095/login')
 
 @flask_app.route('/liveview', methods=['GET'])
 def liveview():
@@ -65,6 +65,14 @@ def liveview():
         return render_template('mapscripts.html', markers=markers, api_key=GMAPS_API_KEY), 200
     return render_template('mapscripts.html', api_key=GMAPS_API_KEY), 200
 
+@flask_app.route('/login', methods = ['GET', 'POST'])
+def login():
+	if request.method == 'POST':
+		return redirect('http://192.168.99.183:8095/liveview')
+		#check the credentials safely here
+	else: # GET
+		return render_template('login.html'), 200
+	
 @flask_app.route('/_query_db')
 def query_db():
 	updateDatabase()
@@ -75,7 +83,7 @@ def query_db():
 
 @flask_app.route('/<path:path>')
 def catch_all(path):
-    return redirect('http://192.168.99.183:8095/liveview')
+    return redirect('http://192.168.99.183:8095/login')
 
 #****************************************************************************
 #   DB METHODS
