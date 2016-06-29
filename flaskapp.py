@@ -30,6 +30,8 @@ import paramiko # ssh library
 import sys
 from remote_exec import MySSH
 
+from timeout import TimeoutError
+
 import re
 
 #****************************************************************************
@@ -132,16 +134,22 @@ def updateGPSCoords(name):
 	
 	if not user:
 		return
+	try:
+		#run commands on ssh
+		ssh = openSSHSession(user)
+		if not ssh:
+			return
+		ssh.run('enable')
+		ssh = openSSHSession(user)
+		if not ssh:
+			return
+		status, output = ssh.run('show cellular 0 gps')
+	except TimeoutError:
+		return
 	
-	#run commands on ssh
-	ssh = openSSHSession(user)
-	ssh.run('enable')
-	ssh = openSSHSession(user)
-	status, output = ssh.run('show cellular 0 gps')
-	
-	#print 'status = %d' % (status)
-	#print 'output (%d):' % (len(output))
-	#print '%s' % (output)
+	print 'status = %d' % (status)
+	print 'output (%d):' % (len(output))
+	print '%s' % (output)
 	
 	#parse the response
 	lat, lng = parseGPSString(output)
@@ -194,7 +202,8 @@ def parseGPSString(output):
 	#convert to doubles
 	lat = convertLat(lat_dms)
 	lng = convertLng(lng_dms)
-	
+	print lat
+	print lng
 	if not lat and lng:
 		return None
 	return lat, lng

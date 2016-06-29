@@ -11,6 +11,8 @@ import socket
 import time
 import datetime
 
+from timeout import timeout
+
 
 # ================================================================
 # class MySSH
@@ -65,6 +67,7 @@ class MySSH:
             self.transport.close()
             self.transport = None
 
+    @timeout(2)
     def connect(self, hostname, username, password, port=22):
         '''
         Connect to the host.
@@ -87,6 +90,7 @@ class MySSH:
                              port=port,
                              username=username,
                              password=password)
+            print 'got here!'
             self.transport = self.ssh.get_transport()
             self.transport.use_compression(self.compress)
             self.info('succeeded: %s@%s:%d' % (username,

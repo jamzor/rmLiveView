@@ -47,7 +47,7 @@
       							// function to display this marker's relevant info
 								map.panTo(marker.position);
       							displayInfo(marker);
-								smoothZoom(map, 14, map.getZoom());
+								map.setZoom(15);
     						});
             })(i);
         }
