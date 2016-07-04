@@ -15,5 +15,6 @@ INSERT INTO Masters (username,pw_salty,salt,email) VALUES ('james', 'pass hash',
 INSERT INTO Companies(company_name,enabled) VALUES ('Somewhere Ltd.', TRUE);
 
 /*Clients*/
-INSERT INTO Clients (username,pw_salty,salt,email,confirmed,company,enabled) VALUES ('someone', 'pass hash', 'pass salt', 'somebody@somewhere.com',TRUE,(SELECT c_id FROM Companies WHERE company_name = 'Somewhere Ltd.' LIMIT 1),TRUE);
+INSERT INTO Clients (username,pw_salty,salt,email,confirmed,company,enabled) VALUES ('someone', 'pass hash', 'pass salt', 'somebody@somewhere.com',TRUE,(SELECT c_id FROM Companies WHERE company_name = 'Somewhere Ltd.' LIMIT 1), TRUE);
 
+/*Agents*/

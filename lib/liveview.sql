@@ -39,7 +39,7 @@ CREATE TABLE Clients(
 
 CREATE TABLE Agents(
 	a_id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
-	agent_name TEXT UNIQUE NOT NULL,
+	agent_name TEXT NOT NULL,
 	pw TEXT NOT NULL, /*Need to figure out a safe two-way encryption method*/
 	company_id UUID REFERENCES Companies(c_id),
 	company_name TEXT NOT NULL,
@@ -50,6 +50,7 @@ CREATE TABLE Agents(
 CREATE TABLE Devices(
 	d_id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
 	device_name TEXT NOT NULL,
+	device_address TEXT NOT NULL,
 	company_id UUID REFERENCES Companies(c_id),
 	company_name TEXT NOT NULL,
 	agent_id UUID REFERENCES Agents(a_id),
@@ -59,13 +60,15 @@ CREATE TABLE Devices(
 );
 
 CREATE TABLE Markers(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+    m_id UUID PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     title TEXT UNIQUE NOT NULL,
     latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
 	company_id UUID REFERENCES Companies(c_id),
 	company_name TEXT NOT NULL,
-	device_id TEXT NOT NULL,
+	agent_id UUID REFERENCES Agents(a_id),
+	agent_name TEXT NOT NULL,
+	device_id UUID REFERENCES Devices(d_id),
 	device_name TEXT NOT NULL,
     device_address TEXT NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now()::TIMESTAMP,
