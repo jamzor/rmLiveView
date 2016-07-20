@@ -66,7 +66,7 @@ class MySSH:
             self.transport.close()
             self.transport = None
 
-    @timeout(2)
+    @timeout(5)
     def connect(self, hostname, username, password, port=22):
         '''
         Connect to the host.

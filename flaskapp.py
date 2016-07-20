@@ -27,10 +27,10 @@ import paramiko # ssh library
 import sys
 import re
 
-#lib/REMOTE_EXEC.PY
+#REMOTE_EXEC.PY
 from remote_exec import MySSH
 
-#lib/TIMEOUT.PY
+#TIMEOUT.PY
 from timeout import TimeoutError
 
 #AUTHENTICATION.PY
@@ -56,7 +56,7 @@ from compute import ParsingMethods
 GMAPS_API_KEY = "AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ"
 
 flask_app = Flask(__name__)
-
+UserMethods.login_manager.init_app(flask_app)
 #****************************************************************************
 #   ROUTES
 #   @author:    james macisaac
@@ -66,14 +66,20 @@ flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def index():
-    return redirect('http://192.168.99.183:8095/login')
+	return redirect('http://192.168.99.183:8095/login')
 
 @flask_app.route('/liveview', methods=['GET'])
 def liveview():
-    markers = json.dumps(DBMethods.getMarkers(), indent=2)
-    if markers:
-        return render_template('mapscripts.html', markers=markers, api_key=GMAPS_API_KEY), 200
-    return render_template('mapscripts.html', api_key=GMAPS_API_KEY), 200
+	print 'LiveView Requested'
+	markers_raw = DBMethods.getMarkers()
+	if markers_raw:
+		markers = json.dumps(DBMethods.getMarkers(), indent=2)
+	else:
+		markers = markers_raw
+	print markers
+	if markers is None:
+		return render_template('mapscripts.html', markers=None, api_key=GMAPS_API_KEY), 200
+	return render_template('mapscripts.html', markers=markers, api_key=GMAPS_API_KEY), 200
 
 @flask_app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -107,6 +113,7 @@ app = flask_app.wsgi_app
 #***DATABASE*****************************************************************
 def updateDatabase():
 	agent_IDs = DBMethods.getAllAgentsID()
+	print 'Updating DB'
 	for agent in agent_IDs:
 		SSHMethods.updateGPSCoords(agent[0])
 	

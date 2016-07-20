@@ -19,10 +19,10 @@ def grim_reaper(signum, frame):
                 -1,         # Wait for child processes
                 os.WNOHANG  # Do not block and return EWOULDBLOCK error
             )
-            print(
-                'Child {pid} terminated with status {status}'
-                '\n'.format(pid=pid, status=status)
-            )
+            #print(
+            #    'Child {pid} terminated with status {status}'
+            #    '\n'.format(pid=pid, status=status)
+            #)
         except OSError:
             return
 
