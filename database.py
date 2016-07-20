@@ -19,7 +19,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from psycopg2 import ProgrammingError
-
+from config.db_config import DATABASE_NAME
 #****************************************************************************
 #   DB METHODS
 #   @author:    james macisaac
@@ -31,7 +31,7 @@ class DBMethods():
 	@classmethod
 	def connect(self):
 		"""Connect to the PostgreSQL database.  Returns a database connection."""
-		return psycopg2.connect("dbname=liveview")
+		return psycopg2.connect("dbname=(%s)" % DATABASE_NAME)
 		
 	#Query wrapper function
 	@classmethod
@@ -52,12 +52,43 @@ class DBMethods():
 			DB.close()
 			return response
 		except ProgrammingError:
+			print "Query failed"
 			return None
-
+			
+#***MASTERS AND CLIENTS********************************************************
+			@classmethod
+	def checkUsername(self, username):
+		"""Check for the Username in the Tables"""
+		query = "SELECT username FROM masters, clients WHERE username = (%s)"
+		exists = runQuery(query, True, False, username)
+		if exists:
+			return False
+		return True
+		
+	@classmethod
+	def checkEmail(self, email):
+		"""Check for the Email in the Tables"""
+		query = "SELECT username FROM masters, clients WHERE email = (%s)"
+		exists = runQuery(query, True, False, email)
+		if exists:
+			return False
+		return True
+		
 #***MASTERS*******************************************************************
-	
+	@classmethod
+	def addNewMaster(self, username, pw_hash, salt, email, enable):
+		user_ok = checkUsername(username)
+		if not user_ok:
+			return False, 'Username in use'
+		email_ok = checkEmail(email):
+		if not email_ok:
+			return False, 'Email already registered'
+		query = "INSERT INTO masters (username, pw_salty, salt, email, enable) VALUES (%s, %s, %s, %s, %s)"
+		runQuery(query, False, True, [username,pw_hash,salt,email,enable])
+		return True, 'Success!'
+		
 #***CLIENTS*******************************************************************
-	
+		
 #***COMPANIES*****************************************************************
 	@classmethod
 	def getCompanyID(self, company):

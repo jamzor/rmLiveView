@@ -49,11 +49,12 @@ class SSHMethods():
 					return
 				status, output = ssh.run('show cellular 0 gps')
 			except TimeoutError:
+				print 'Timeout Error'
 				return
 			
-			#print 'status = %d' % (status)
-			#print 'output (%d):' % (len(output))
-			#print '%s' % (output)
+			print 'status = %d' % (status)
+			print 'output (%d):' % (len(output))
+			print '%s' % (output)
 			
 			#parse the response
 			lat, lng = ParsingMethods.parseGPSString(output)
