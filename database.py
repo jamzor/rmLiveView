@@ -31,7 +31,7 @@ class DBMethods():
 	@classmethod
 	def connect(self):
 		"""Connect to the PostgreSQL database.  Returns a database connection."""
-		return psycopg2.connect("dbname=(%s)" % DATABASE_NAME)
+		return psycopg2.connect("dbname=%s" % DATABASE_NAME)
 		
 	#Query wrapper function
 	@classmethod
@@ -53,10 +53,10 @@ class DBMethods():
 			return response
 		except ProgrammingError:
 			print "Query failed"
-			return None
+			return False
 			
 #***MASTERS AND CLIENTS********************************************************
-			@classmethod
+	@classmethod
 	def checkUsername(self, username):
 		"""Check for the Username in the Tables"""
 		query = "SELECT username FROM masters, clients WHERE username = (%s)"
@@ -77,23 +77,62 @@ class DBMethods():
 #***MASTERS*******************************************************************
 	@classmethod
 	def addNewMaster(self, username, pw_hash, salt, email, enable):
+		"""Add a new Master to the Database"""
 		user_ok = checkUsername(username)
 		if not user_ok:
 			return False, 'Username in use'
-		email_ok = checkEmail(email):
+		email_ok = checkEmail(email)
 		if not email_ok:
 			return False, 'Email already registered'
 		query = "INSERT INTO masters (username, pw_salty, salt, email, enable) VALUES (%s, %s, %s, %s, %s)"
 		runQuery(query, False, True, [username,pw_hash,salt,email,enable])
 		return True, 'Success!'
 		
-#***CLIENTS*******************************************************************
+	@classmethod
+	def checkMaster(self, username):
+		"""Check for the Username in the Masters Table"""
+		query = "SELECT username FROM masters WHERE username = %s,enabled = 'True'"
+		exists = runQuery(query, True, False, username)
+		if exists:
+			return exists[0]
+		return False
 		
+	@classmethod
+	def getMasterByUsername(self, username):
+		query = "SELECT u_id,username,pw_salty,salt,email FROM masters WHERE username = %s"
+		masterUser = runQuery(query, True, False, username)
+		if masterUser:
+			return masterUser
+		return False
+		
+#***CLIENTS*******************************************************************
+	@classmethod
+	def getClientByID(self, id):
+		"""Return the Client with the given ID"""
+		query = "SELECT u_id,username,pw_salty,salt "
+
+	@classmethod
+	def checkClient(self, username):
+		"""Check for the Username in the Masters Table"""
+		query = "SELECT username FROM clients WHERE username = %s,enabled = 'True'"
+		exists = runQuery(query, True, False, username)
+		if exists:
+			return exists[0]
+		return False
+		
+	@classmethod
+	def getClientByUsername(self, username):
+		query = "SELECT u_id,username,pw_salty,salt,email FROM clients WHERE username = %s"
+		clientUser = runQuery(query, True, False, username)
+		if clientUser:
+			return clientUser
+		return False
+
 #***COMPANIES*****************************************************************
 	@classmethod
 	def getCompanyID(self, company):
 		"""Get the Company ID that matches this company name"""
-		query = "SELECT c_id FROM Companies WHERE company_name = (%s)"
+		query = "SELECT c_id FROM Companies WHERE company_name = %s"
 		comp_ID = runQuery(query, True, False, company)
 		return comp_ID
 	
@@ -101,13 +140,14 @@ class DBMethods():
 	@classmethod
 	def getAgentByID(self, a_id):
 		"""Get The Agent that matches the given name"""
-		query = "SELECT * FROM Agents WHERE a_id=(%s)"
+		query = "SELECT * FROM Agents WHERE a_id = %s"
 		agent = runQuery(query, True, False, a_id)
 		return agent
+		
 	@classmethod
-	def getAllAgentsID(self):
+	def getAllAgents(self):
 		"""Get All Agents in the database"""
-		query = "SELECT a_id FROM Agents"
+		query = "SELECT a_id,agent_name,pw,company_id FROM Agents"
 		rows = runQuery(query, False, False, name)
 		return rows
 		
@@ -124,28 +164,33 @@ class DBMethods():
 		query = "UPDATE Marker SET latitude = %s, longitude = %s, updated = CURRENT_TIMESTAMP WHERE m_id = %s"
 		runQuery(query, True, True, m_id)
 		return
+		
 	@classmethod
 	def getDeviceIDByMarkerID(self,m_id):
 		query = "SELECT device_id FROM Marker WHERE m_id = (%s)"
 		device_id = runQuery(query, True, False, m_id)
 		return device_id
+		
 	@classmethod
 	def getDeviceMarkerID(self,d_id):
 		query = "SELECT m_id FROM Markers WHERE device_id = (%s)"
 		marker_ID = runQuery(query, True, False, d_id)
 		return marker_ID
+		
 	@classmethod
 	def getMarkers(self):
 		"""Get the list of markers from the database"""
 		query = "SELECT m_id,title,latitude,longitude,device_address FROM Markers ORDER BY created DESC"
 		rows = self.runQuery(query, False, False)
 		return rows
+		
 	@classmethod
 	def getAgentMarkersID(self,a_id):
 		"""GET all the marker ids associated with the agent"""
 		query = "SELECT m_id FROM Markers WHERE agent_id = (%s)"
 		rows = runQuery(query, False, False)
 		return rows
+		
 	@classmethod
 	def getCompanyMarkers(self,company):
 		"""Get the list of the company's markers from the database"""

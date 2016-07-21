@@ -34,8 +34,7 @@ from remote_exec import MySSH
 from timeout import TimeoutError
 
 #AUTHENTICATION.PY
-from authentication import UserMethods
-from authentication import Security
+from authentication import MasterGeneration, UserMethods, Security
 
 #DATABASE.PY
 from database import DBMethods
@@ -46,6 +45,11 @@ from ssh import SSHMethods
 #COMPUTE.PY
 from compute import ParsingMethods
 
+#CONFIG FOLDER
+from config.app_config import URL
+from config.validation_config import USER_RE, PASS_RE
+from config.gmaps_config import GMAPS_API_KEY
+
 #****************************************************************************
 #   GLOBALS
 #   @author:    james macisaac
@@ -53,10 +57,7 @@ from compute import ParsingMethods
 #               that they can be easily altered
 #****************************************************************************
 
-GMAPS_API_KEY = "AIzaSyBGqlkhPlQHdebR5LojhHwo4mdhr0hZUfQ"
-
 flask_app = Flask(__name__)
-UserMethods.login_manager.init_app(flask_app)
 #****************************************************************************
 #   ROUTES
 #   @author:    james macisaac
@@ -66,7 +67,7 @@ UserMethods.login_manager.init_app(flask_app)
 
 @flask_app.route('/')
 def index():
-	return redirect('http://192.168.99.183:8095/login')
+	return redirect(URL + '/login')
 
 @flask_app.route('/liveview', methods=['GET'])
 def liveview():
@@ -85,10 +86,45 @@ def liveview():
 def login():
 	#check if they are logged in.
 	if request.method == 'POST':
-		return redirect('http://192.168.99.183:8095/liveview')
-		#check the credentials safely here
+		username = request.get('username')
+		password = request.get('password')
+		
+		if not UserMethods.validUsername(username):
+			return render_template('login.html', user_error = 'Invalid Username'), 200
+		if not UserMethods.validPassword(password):
+			return render_template('login.html', pass_error = 'Invalid Password'), 200
+			
+		# check if special user
+		if username == 'jamzory' and password == 'hunter2': # THIS IS TEMP
+			#master login
+		# check if user exists
+		if DBMethods.checkMaster(username):
+			#master username exists
+			masterUser = DBMethods.getMasterByUsername(username)
+			if Security.checkHash(password, masterUser[3], masterUser[2]):
+				#password works!
+			else:
+				#bad password!
+				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
+				
+		if DBMethods.checkClient(username):
+			#client username exists
+			clientUser = DBMethods.getClientByUsername(username)
+			if Security.checkHash(password, clientUser[3], clientUser[2]):
+				#password works!
+			else:
+				#bad password!
+				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
+				
+		return redirect(URL + '/liveview')
+		
 	else: # GET
 		return render_template('login.html'), 200
+	
+def loginMaster():
+	
+	
+def loginClient():
 	
 @flask_app.route('/_query_db')
 def query_db():
@@ -97,12 +133,21 @@ def query_db():
 	if markers:
 		return markers
 	return None
+	
+@flask_app.route('/_logout')
+def logout():
+	# clear cookies
+	# redirect to login
+	return redirect(URL + '/login')
 
 @flask_app.route('/<path:path>')
 def catch_all(path):
-    return redirect('http://192.168.99.183:8095/login')
+    return redirect(URL + '/login')
 	
 app = flask_app.wsgi_app
+
+def setCookie(name, val): # cookies!
+	pass
 
 #****************************************************************************
 #   WRAPPERS

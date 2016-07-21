@@ -23,6 +23,9 @@ import binascii	#These are used to implement a PKCS#5 pw-based key der func
 from base64 import b64encode
 from os import urandom
 
+#CONFIG FOLDER
+from config.validation_config import USER_RE, PASS_RE
+from config.security_config import SECRET_KEY
 
 #****************************************************************************
 #   USER GENERATION METHODS
@@ -52,8 +55,17 @@ class MasterGeneration():
 
 class UserMethods():
 
-	def logInUser():
-		pass
+	@classmethod
+	def validUsername(self, username):
+		return username and USER_RE.match(username)
+
+	@classmethod
+	def validPassword(self, password):
+		return password and PASS_RE.match(password)
+		
+	@classmethod
+	def userLogin(self, username, password):
+		
 
 #****************************************************************************
 #   SECURITY
@@ -90,3 +102,14 @@ class Security():
 			return True
 		else:
 			return False
+
+	@classmethod
+	def genSecureVal(self, val):
+		return %s|%s % (val, hmac.new(SECRET_KEY, val).hexdigest())
+		
+	@classmethod
+	def checkSecureVal(self, sec_val):
+		val = secure_val.split('|')[0]
+		if secure_val == genSecureVal(val):
+			return val
+		
