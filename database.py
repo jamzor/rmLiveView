@@ -91,7 +91,7 @@ class DBMethods():
 	@classmethod
 	def checkMaster(self, username):
 		"""Check for the Username in the Masters Table"""
-		query = "SELECT username FROM masters WHERE username = %s,enabled = 'True'"
+		query = "SELECT u_id FROM masters WHERE username = %s,enabled = 'True'"
 		exists = runQuery(query, True, False, username)
 		if exists:
 			return exists[0]
@@ -114,7 +114,7 @@ class DBMethods():
 	@classmethod
 	def checkClient(self, username):
 		"""Check for the Username in the Masters Table"""
-		query = "SELECT username FROM clients WHERE username = %s,enabled = 'True'"
+		query = "SELECT u_id FROM clients WHERE username = %s,enabled = 'True'"
 		exists = runQuery(query, True, False, username)
 		if exists:
 			return exists[0]

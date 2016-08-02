@@ -22,6 +22,9 @@ from flask import request
 from flask import render_template
 from flask import redirect, url_for
 
+#FORM LIBRARY
+from wtforms import Form, BooleanField, StringField, PasswordField, validators
+
 import json
 import paramiko # ssh library
 import sys
@@ -58,6 +61,7 @@ from config.gmaps_config import GMAPS_API_KEY
 #****************************************************************************
 
 flask_app = Flask(__name__)
+
 #****************************************************************************
 #   ROUTES
 #   @author:    james macisaac
@@ -85,10 +89,18 @@ def liveview():
 @flask_app.route('/login', methods = ['GET', 'POST'])
 def login():
 	#check if they are logged in.
-	if request.method == 'POST':
-		username = request.get('username')
-		password = request.get('password')
+	print 'login request'
+	if request.method == 'GET':
+		print 'login get'
+		return render_template('login.html'), 200 # this is the get request
+	elif request.method == 'POST':
+		print 'login post'
+		result = request.form
+		username = result['username']
+		print 'got username'
+		password = result['password']
 		
+		print 'verifying user input'
 		if not UserMethods.validUsername(username):
 			return render_template('login.html', user_error = 'Invalid Username'), 200
 		if not UserMethods.validPassword(password):
@@ -97,34 +109,54 @@ def login():
 		# check if special user
 		if username == 'jamzory' and password == 'hunter2': # THIS IS TEMP
 			#master login
+			return loginMaster(username)
 		# check if user exists
-		if DBMethods.checkMaster(username):
+		result = DBMethods.checkMaster(username)
+		print result
+		if result:
 			#master username exists
 			masterUser = DBMethods.getMasterByUsername(username)
 			if Security.checkHash(password, masterUser[3], masterUser[2]):
 				#password works!
+				return loginMaster(masterUser[0])
 			else:
 				#bad password!
 				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
-				
-		if DBMethods.checkClient(username):
+		result = DBMethods.checkClient(username)
+		print result
+		if result:
 			#client username exists
 			clientUser = DBMethods.getClientByUsername(username)
 			if Security.checkHash(password, clientUser[3], clientUser[2]):
 				#password works!
+				return loginClient(clientUser[0])
 			else:
 				#bad password!
 				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
-				
-		return redirect(URL + '/liveview')
-		
-	else: # GET
-		return render_template('login.html'), 200
+		#cannot find that user
+		return render_template('login.html', exist_error='Invalid Credentials'), 200 # this is the get request
 	
-def loginMaster():
+def loginMaster(master_id):
+	print 'logging in master'
+	cookie_val = Security.genSecureVal(master_id)
+	response = make_response(render_template('masterlanding.html'), 200)
+	setSecureCookie(response, 'sess_id', cookie_val)
+	return response
 	
-	
-def loginClient():
+def loginClient(client_id):
+	cookie_val = Security.genSecureVal(client_id)
+	response = make_response(render_template('clientLanding.html'), 200)
+	setSecureCookie(response, 'sess_id', cookie_val)
+	return response
+
+@flask_app.route('/master')
+def master():
+	cookie = getSecureCookie('sess_id')
+	if cookie:
+		# check if user has privileges
+		return render_template('masterlanding.html'), 200
+	else:
+		return redirect(URL + '/login')
 	
 @flask_app.route('/_query_db')
 def query_db():
@@ -137,6 +169,7 @@ def query_db():
 @flask_app.route('/_logout')
 def logout():
 	# clear cookies
+	setSecureCookie(response, 'sess_id', '')
 	# redirect to login
 	return redirect(URL + '/login')
 
@@ -146,9 +179,13 @@ def catch_all(path):
 	
 app = flask_app.wsgi_app
 
-def setCookie(name, val): # cookies!
-	pass
-
+def setSecureCookie(response, name, val): # cookies!
+	response.set_cookie(name, val)
+	
+def getSecureCookie(name):
+	cookie_val = request.cookies.get(name)
+	return cookie_val and checkSecureVal(cookie_val)
+	
 #****************************************************************************
 #   WRAPPERS
 #   @author:    james macisaac

@@ -63,8 +63,8 @@ class UserMethods():
 	def validPassword(self, password):
 		return password and PASS_RE.match(password)
 		
-	@classmethod
-	def userLogin(self, username, password):
+	#@classmethod
+	#def userLogin(self, username, password):
 		
 
 #****************************************************************************
@@ -105,7 +105,7 @@ class Security():
 
 	@classmethod
 	def genSecureVal(self, val):
-		return %s|%s % (val, hmac.new(SECRET_KEY, val).hexdigest())
+		return '%s|%s' % (val, hmac.new(SECRET_KEY, val).hexdigest())
 		
 	@classmethod
 	def checkSecureVal(self, sec_val):
