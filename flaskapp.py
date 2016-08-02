@@ -16,19 +16,34 @@
 #               central spot to make changes to libraries
 #****************************************************************************
 
-from flask import Flask
-from flask import Response
-from flask import request
-from flask import render_template
-from flask import redirect, url_for
-
-#FORM LIBRARY
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from flask import (
+Flask,
+Response,
+abort,
+flash,
+request,
+render_template,
+redirect,
+url_for,
+)
 
 import json
 import paramiko # ssh library
 import sys
 import re
+
+from os import environ
+
+#STORMPATH
+from flask_stormpath import (
+StormpathManager,
+StormpathError,
+User,
+login_required,
+login_user,
+logout_user,
+user,
+)
 
 #REMOTE_EXEC.PY
 from remote_exec import MySSH
@@ -37,7 +52,11 @@ from remote_exec import MySSH
 from timeout import TimeoutError
 
 #AUTHENTICATION.PY
-from authentication import MasterGeneration, UserMethods, Security
+from authentication import (
+MasterGeneration,
+UserMethods,
+Security,
+)
 
 #DATABASE.PY
 from database import DBMethods
@@ -50,18 +69,32 @@ from compute import ParsingMethods
 
 #CONFIG FOLDER
 from config.app_config import URL
-from config.validation_config import USER_RE, PASS_RE
+from config.validation_config import (
+USER_RE,
+PASS_RE,
+)
 from config.gmaps_config import GMAPS_API_KEY
 
 #****************************************************************************
-#   GLOBALS
+#   STORMPATH CONFIGURATIONS
 #   @author:    james macisaac
-#   @desc:      a handy location to group all necessary globals so
-#               that they can be easily altered
+#   @desc:      All Stormpath configuration variables are found here.
+#
 #****************************************************************************
 
 flask_app = Flask(__name__)
 
+flask_app.config['SECRET_KEY'] = ']~x;hG!W*mPK#Tv6<P!g'
+flask_app.config['STORMPATH_API_KEY_FILE'] = '~/.stormpath/apiKey.properties'
+flask_app.config['STORMPATH_APPLICATION'] = 'LiveView'
+
+flask_app.config['STORMPATH_REDIRECT_URL'] = '/liveview' #basic redirect url_for
+
+flask_app.config['STORMPATH_ENABLE_MIDDLE_NAME'] = False
+flask_app.config['STORMPATH_ENABLE_USERNAME'] = True
+flask_app.config['STORMPATH_REQUIRE_USERNAME'] = True
+
+stormpath_manager = StormpathManager(flask_app)
 #****************************************************************************
 #   ROUTES
 #   @author:    james macisaac
@@ -71,9 +104,11 @@ flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def index():
+	
 	return redirect(URL + '/login')
 
 @flask_app.route('/liveview', methods=['GET'])
+@login_required
 def liveview():
 	print 'LiveView Requested'
 	markers_raw = DBMethods.getMarkers()
@@ -89,52 +124,19 @@ def liveview():
 @flask_app.route('/login', methods = ['GET', 'POST'])
 def login():
 	#check if they are logged in.
-	print 'login request'
-	if request.method == 'GET':
-		print 'login get'
-		return render_template('login.html'), 200 # this is the get request
-	elif request.method == 'POST':
+	if request.method == 'POST':
 		print 'login post'
-		result = request.form
-		username = result['username']
-		print 'got username'
-		password = result['password']
-		
-		print 'verifying user input'
-		if not UserMethods.validUsername(username):
-			return render_template('login.html', user_error = 'Invalid Username'), 200
-		if not UserMethods.validPassword(password):
-			return render_template('login.html', pass_error = 'Invalid Password'), 200
+		try:
+			_user = User.from_login(
+				request.form['username'],
+				request.form['password'],
+			)
+			login_user(_user, remember=True)
 			
-		# check if special user
-		if username == 'jamzory' and password == 'hunter2': # THIS IS TEMP
-			#master login
-			return loginMaster(username)
-		# check if user exists
-		result = DBMethods.checkMaster(username)
-		print result
-		if result:
-			#master username exists
-			masterUser = DBMethods.getMasterByUsername(username)
-			if Security.checkHash(password, masterUser[3], masterUser[2]):
-				#password works!
-				return loginMaster(masterUser[0])
-			else:
-				#bad password!
-				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
-		result = DBMethods.checkClient(username)
-		print result
-		if result:
-			#client username exists
-			clientUser = DBMethods.getClientByUsername(username)
-			if Security.checkHash(password, clientUser[3], clientUser[2]):
-				#password works!
-				return loginClient(clientUser[0])
-			else:
-				#bad password!
-				return render_template('login.html', exist_error = 'Invalid Credentials'), 200
-		#cannot find that user
-		return render_template('login.html', exist_error='Invalid Credentials'), 200 # this is the get request
+			return redirect(URL + '/liveview')
+		except StormpathError, err:
+			print err.message
+			return render_template('login.html', exist_error = 'Invalid Credentials')
 	
 def loginMaster(master_id):
 	print 'logging in master'
@@ -150,6 +152,7 @@ def loginClient(client_id):
 	return response
 
 @flask_app.route('/master')
+@login_required
 def master():
 	cookie = getSecureCookie('sess_id')
 	if cookie:
@@ -159,6 +162,7 @@ def master():
 		return redirect(URL + '/login')
 	
 @flask_app.route('/_query_db')
+@login_required
 def query_db():
 	updateDatabase()
 	markers = json.dumps(DBMethods.getMarkers(), indent=2)
@@ -167,9 +171,11 @@ def query_db():
 	return None
 	
 @flask_app.route('/_logout')
+@login_required
 def logout():
+	logout_user()
 	# clear cookies
-	setSecureCookie(response, 'sess_id', '')
+	#setSecureCookie(response, 'sess_id', '')
 	# redirect to login
 	return redirect(URL + '/login')
 
