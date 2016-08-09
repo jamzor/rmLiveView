@@ -88,13 +88,22 @@ flask_app.config['SECRET_KEY'] = ']~x;hG!W*mPK#Tv6<P!g'
 flask_app.config['STORMPATH_API_KEY_FILE'] = '~/.stormpath/apiKey.properties'
 flask_app.config['STORMPATH_APPLICATION'] = 'LiveView'
 
-flask_app.config['STORMPATH_REDIRECT_URL'] = '/liveview' #basic redirect url_for
+flask_app.config['STORMPATH_REGISTRATION_REDIRECT_URL'] = URL + '/liveview'
+flask_app.config['STORMPATH_REDIRECT_URL'] = URL + '/liveview' #basic redirect
 
 flask_app.config['STORMPATH_ENABLE_MIDDLE_NAME'] = False
 flask_app.config['STORMPATH_ENABLE_USERNAME'] = True
 flask_app.config['STORMPATH_REQUIRE_USERNAME'] = True
 
+flask_app.config['STORMPATH_ENABLE_FORGOT_PASSWORD'] = True
+
 stormpath_manager = StormpathManager(flask_app)
+
+#directory = stormpath_manager.application.default_account_store_mapping.account_store
+
+#masters = directory.groups.create({'name': 'Masters'})
+#clients = directory.groups.create({'name': 'Clients'})
+
 #****************************************************************************
 #   ROUTES
 #   @author:    james macisaac
@@ -104,7 +113,6 @@ stormpath_manager = StormpathManager(flask_app)
 
 @flask_app.route('/')
 def index():
-	
 	return redirect(URL + '/login')
 
 @flask_app.route('/liveview', methods=['GET'])
@@ -125,15 +133,14 @@ def liveview():
 def login():
 	#check if they are logged in.
 	if request.method == 'POST':
-		print 'login post'
 		try:
 			_user = User.from_login(
 				request.form['username'],
 				request.form['password'],
 			)
+			_user.add_group(masters)
 			login_user(_user, remember=True)
 			
-			return redirect(URL + '/liveview')
 		except StormpathError, err:
 			print err.message
 			return render_template('login.html', exist_error = 'Invalid Credentials')
